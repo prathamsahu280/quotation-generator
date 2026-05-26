@@ -49,4 +49,4 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // everything except Next internals, API routes (they auth themselves), static files
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/).*)"],
-};
+}

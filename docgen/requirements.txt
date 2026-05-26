@@ -7,9 +7,9 @@ python-dotenv          # load docgen/.env locally
 python-docx
 pypdf
 
-# PDF letterhead -> .docx background (scanned/designed letterheads)
-pymupdf                # fitz: rasterise PDF page
-pillow                 # save the page image
+# PDF letterhead -> .docx background (scanned/designed letterheads).
+# The PDF page is rasterised with LibreOffice headless (see below); no fitz.
+pillow                 # read the rendered page image
 numpy                  # detect header/footer margins
 
 # PDF rendering: LibreOffice (Linux, auto-detected) or docx2pdf (Windows/macOS + Word)

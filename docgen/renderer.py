@@ -243,7 +243,12 @@ def render_blocks(doc, blocks):
 
 
 def _find_soffice() -> str | None:
-    """Locate a LibreOffice/OpenOffice headless binary (used on Linux/cloud)."""
+    """Locate a LibreOffice/OpenOffice headless binary (used on Linux/cloud).
+
+    Checks $SOFFICE_BIN, then PATH, then common install locations (some distros
+    and the official .deb/.rpm install under /opt or /usr/lib without adding it
+    to PATH).
+    """
     env = os.getenv("SOFFICE_BIN")
     if env and Path(env).exists():
         return env
@@ -251,6 +256,21 @@ def _find_soffice() -> str | None:
         found = shutil.which(name)
         if found:
             return found
+    common = (
+        "/usr/bin/soffice", "/usr/bin/libreoffice",
+        "/usr/lib/libreoffice/program/soffice",
+        "/opt/libreoffice/program/soffice",
+        "/snap/bin/libreoffice",
+        "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+    )
+    for path in common:
+        if Path(path).exists():
+            return path
+    import glob
+    for pattern in ("/opt/libreoffice*/program/soffice",):
+        hits = sorted(glob.glob(pattern))
+        if hits:
+            return hits[-1]
     return None
 
 
@@ -276,10 +296,17 @@ def to_pdf(docx_path: Path) -> Path:
             raise RuntimeError("LibreOffice did not produce a PDF.")
         return pdf_path
 
-    # Fallback: docx2pdf (needs MS Word installed).
-    from docx2pdf import convert as docx2pdf_convert
-    docx2pdf_convert(str(docx_path), str(pdf_path))
-    return pdf_path
+    # Fallback: docx2pdf (needs MS Word; Windows/macOS only).
+    try:
+        from docx2pdf import convert as docx2pdf_convert
+        docx2pdf_convert(str(docx_path), str(pdf_path))
+        return pdf_path
+    except (NotImplementedError, ImportError) as e:
+        raise RuntimeError(
+            "No PDF engine available: LibreOffice (soffice) was not found and "
+            "docx2pdf needs MS Word. On Linux/KVM install LibreOffice "
+            "(`apt-get install -y libreoffice`) or set SOFFICE_BIN to its path."
+        ) from e
 
 
 def pdf_engine() -> str:

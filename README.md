@@ -53,8 +53,10 @@ python -m pip install -r requirements.txt        # add --user on locked machines
 cp .env.example .env                              # set DOCGEN_SECRET + GEMINI_API_KEY
 python -m uvicorn main:app --port 8500
 ```
-PDF needs **LibreOffice** (any OS, auto-detected) or **MS Word** (`docx2pdf`).
-Without either, output is DOCX only.
+PDF output needs **LibreOffice** (any OS, auto-detected) or **MS Word**
+(`docx2pdf`); without either, output is DOCX only. **PDF letterhead uploads also
+require LibreOffice** (Draw) to rasterise the page — Writer alone is not enough.
+If `soffice` isn't on `PATH`, set `SOFFICE_BIN` to its full path.
 
 ### 3. Web app (`web/`)
 ```
@@ -77,9 +79,12 @@ npm run dev                                       # http://localhost:3000
 ## Deploying
 
 - **Web** → Vercel (set the same env vars). 
-- **Doc-gen** → any container host (Render / Railway / Fly). Install LibreOffice
-  in the image (`apt-get install -y libreoffice`) for PDF, set `DOCGEN_SECRET`
-  and `GEMINI_API_KEY`, and point the web app's `DOCGEN_URL` at it.
+- **Doc-gen** → any container host (Render / Railway / Fly / KVM). Install
+  LibreOffice in the image (`apt-get install -y libreoffice`, or the slimmer
+  `libreoffice-writer libreoffice-draw`) — Writer renders DOCX→PDF and Draw
+  rasterises PDF letterhead uploads. Set `DOCGEN_SECRET` and `GEMINI_API_KEY`,
+  point the web app's `DOCGEN_URL` at it, and set `SOFFICE_BIN` if `soffice`
+  isn't on `PATH`.
 - **Supabase** is already managed/scalable.
 
 ## Notes
