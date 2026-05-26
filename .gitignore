@@ -1,0 +1,24 @@
+# secrets / config
+.env
+
+# per-user data, generated files, local DB
+/data/
+/output/
+/uploads/
+/.claude/
+.claude/
+*.sqlite3
+*.db
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
